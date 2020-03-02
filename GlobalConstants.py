@@ -1,10 +1,13 @@
+
+import numpy as np
 # Game size
 game_size = 10
 
 # Number of games to play
 num_episodes = 100
 
-if game_type == 'nim':
+
+if 'ledge' == 'nim':
     # Number of simulations (and therefore rollouts) for each move
     M = 500
 
@@ -32,7 +35,6 @@ else:
     # For Ledge, initial board
     def create_B_init(length: int, num_copper: int):
         # Length of board, number of coppers on the board
-        board = B_init
         board = np.zeros(length)
         # Find boardcells for all coind, cant crash with each other
         copper_indices = np.random.choice(length, num_copper+1, replace=False)
