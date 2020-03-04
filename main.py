@@ -44,3 +44,13 @@ if __name__ == '__main__':
         - final statistics
         - starting player
         """
+
+        """
+        TODO:
+        - tree policy/simulation policy (greedy or optimism in the face of uncertainty. latter is better)
+        - default policy/rollout policy (uniform)
+        - P1 policy and P2 policy, wrap in policy-method that takes in which player
+        - MAYBE NOT; SEE NEXT POINT table: (s,a) -> s'. nim: a - number. ledge: a - (number, number) (cell, dist). Do I want s -> actions -> s' ? or (s,a) -> s'
+        - n(s): node. contains: total count for state N(s), action value Q(s,a), count N(s,a) for each a in A (and child-nodes/parent-node?)
+        - For each simulation, add the first state encountered, that is not already represented in the tree, to the search tree.
+        """
