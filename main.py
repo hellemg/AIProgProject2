@@ -17,6 +17,12 @@ if __name__ == '__main__':
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
+        def get_minimax_functions(p_num):
+            if p_num%2+1 == 1:
+                return lambda x1,x2: x1+x2, lambda x1,x2: np.max((x1,x2))
+            elif p_num%2+1 == 2:
+                return lambda x1,x2: x1-x2, lambda x1,x2: np.min((x1,x2))
+
         env = Environment('ledge')
         env.set_game(B_init)
         mcts = MCTS()
@@ -50,14 +56,19 @@ if __name__ == '__main__':
                 actions_done = []
                 # Set initial state for simulation
                 s = env.get_environment_state()
+                # S is not in the tree, add it to the tree. ASSUMING FIRST STATE IS NOT A WIN/LOOSE
+                mcts.insert_state(state, possible_actions)
                 # Traverse the tree until a leaf node is found
                 while s in mcts.states:
                     # TODO: Find out why states are not appending
                     # I do a while statement, as I then need to check for the existence of a
                     # key in a hash table O(1), instead of counting number of states in the tree
                     possible_actions = env.get_possible_actions()
-                    # TODO: Get combine function and arg function
-                    action = mcts.tree_policy(s, possible_actions, np.sum, np.max)
+                    combine_func, arg_func = get_minimax_functions(p_num)
+                    # TODO: Check that minimax-functions work for player 2 (after fixing visited states)
+                    # print('player ',p_num,'combine, arg:', combine_func(6,4), arg_func(9,6))
+                    # input()
+                    action = mcts.tree_policy(s, possible_actions, combine_func, arg_func)
                     # Do the action
                     env.generate_child_state(action)
                     # Add state and action to lists
@@ -68,24 +79,11 @@ if __name__ == '__main__':
                     # Get next state
                     s = env.get_environment_state()
 
-                # S is not in the tree, add it to the tree
-                mcts.insert_state(state, possible_actions)
-                # When s is not in env-states, do rollout. ASSUMING FIRST STATE IS NOT A WIN/LOOSE
-                while env.get_environment_status() == 'play':
-                    possible_actions = env.get_possible_actions()
-                    action = mcts.default_policy(s, possible_actions)
-                    print('possible actions: {}\naction: {}'.format(possible_actions, action))
-                    # Do the action
-                    env.generate_child_state(action)
-                    # NOT adding state and action to lists, only get value from rollout
-                    # Action has been done, next players turn
-                    p_num += 1
-                    # Get next state
-                    s = env.get_environment_state()
-                
+                # When s is not in env-states, do rollout. 
+                eval = mcts.evaluate_leaf(s, env)
                 # Backpropagate values
                 print('visited states:', visited_states)
-                mcts.backpropagate(visited_states, actions_done, env.get_environment_value(p_num%2+1))
+                mcts.backpropagate(visited_states, actions_done, eval)
                 input()
 
             # FOR REAL GAME

@@ -21,8 +21,8 @@ class MCTS:
         for a in possible_actions:
             u = self.c*np.sqrt(np.log(node.N)/(1+node.N_edge[a]))
             action_value = node.Q_edge_values[a]
-            possible_best = combine_function((action_value, u))
-            best_value = arg_function((possible_best, best_value))
+            possible_best = combine_function(action_value, u)
+            best_value = arg_function(possible_best, best_value)
             if best_value == possible_best:
                 best_action = a
         return best_action
@@ -38,6 +38,23 @@ class MCTS:
         random_index = np.random.randint(len(possible_actions))
         return possible_actions[random_index]
 
+    def evaluate_leaf(self, s, env):
+        p_num = 0
+        while env.get_environment_status() == 'play':
+            possible_actions = env.get_possible_actions()
+            action = self.default_policy(s, possible_actions)
+            print('possible actions: {}\naction: {}'.format(possible_actions, action))
+            # Do the action
+            env.generate_child_state(action)
+            # NOT adding state and action to lists, only get value from rollout
+            # Action has been done, next players turn
+            p_num += 1
+            # Get next state
+            s = env.get_environment_state()
+        eval = env.get_environment_value(p_num%2+1)
+        print('In evaluate - player {} wins, eval={}'.format(p_num%2+1,eval))
+        return eval
+
     def backpropagate(self, visited_states, actions_done, result):
         """
         For each node in visited states
@@ -46,12 +63,12 @@ class MCTS:
         Update Q(s,a)
         """
         for s, a in zip(reversed(visited_states), reversed(actions_done)):
-            print('-------')
-            print(s, a)
-            print(self.states[s].N)
+            print('In Backprop-------')
+            print(s, a, result)
+            print('old N, Q',self.states[s].N, self.states[s].Q_edge_values)
             node = self.states[s]
             node.update(a, result)
-            print(self.states[s].N)
+            print('new N, Q',self.states[s].N, self.states[s].Q_edge_values)
             input()
 
 
