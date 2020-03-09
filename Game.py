@@ -7,11 +7,14 @@ class Nim:
         self.total_pieces = N
         self.K = K
 
-    def remove_pieces(self, num_pieces: int, verbose: bool):
+    def do_player_move(self, num_pieces: int, verbose=True):
+        print("THIS NEEDS TO BE TUPLE (do_player_move)",num_pieces)
+        exit()
         # Remove pieces from pile
         self.total_pieces -= num_pieces
         if verbose:
-            print('selects {} stones. Remaining stones = {}'.format(num_pieces, self.total_pieces))
+            print('selects {} stones. Remaining stones = {}'.format(
+                num_pieces, self.total_pieces))
 
     def game_status(self):
         # win, play (check for current player, cant loose)
@@ -21,13 +24,12 @@ class Nim:
             return 'play'
 
     def get_possible_actions(self):
-        # returns possible number of pieces to pick up
+        # returns list of possible number of pieces to pick up
         max_pieces = np.minimum(self.K, self.total_pieces)+1
         return np.arange(1, max_pieces)
-    
+
     def get_game_state(self):
-        # NOT IN USE
-        return self.total_pieces
+        return str(self.total_pieces)
 
 
 class Ledge:
@@ -37,7 +39,7 @@ class Ledge:
         # Last piece that was picked up, player has won if it is gold coin (1)
         self.picked_up = None
 
-    def move_piece(self, boardcell: int, dist: int, verbose: bool):
+    def do_player_move(self, boardcell: int, dist: int, verbose=True):
         if self.board[boardcell] == 1:
             piece = 'copper'
         else:
@@ -56,7 +58,8 @@ class Ledge:
             # Remoce piece from old cell
             self.board[boardcell] = 0.
             if verbose:
-                print('moves {} from cell {} to cell {}: {}'.format(piece, boardcell, boardcell-dist, self.board))
+                print('moves {} from cell {} to cell {}: {}'.format(
+                    piece, boardcell, boardcell-dist, self.board))
 
     def game_status(self):
         # win, play (check for current player, cant loose)
@@ -81,9 +84,8 @@ class Ledge:
                 dists = 0
         # Add first cell to actions, can be picked up
         if self.board[0] != 0:
-            actions.append((0,0))
+            actions.append((0, 0))
         return actions
 
     def get_game_state(self):
-        # NOT IN USE (except for printing)
-        return self.board
+        return ''.join(map(str, self.board))
