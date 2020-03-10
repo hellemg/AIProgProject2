@@ -17,22 +17,13 @@ if __name__ == '__main__':
     elif Menu == 'MCTS':
         print('Welcome to MCTS')
 
-        def get_minimax_functions(p_num):
-            if p_num%2+1 == 1:
-                return lambda x1,x2: x1+x2, lambda x1,x2: np.max((x1,x2))
-            elif p_num%2+1 == 2:
-                return lambda x1,x2: x1-x2, lambda x1,x2: np.min((x1,x2))
-
         env = Environment('ledge')
         env.set_game(B_init)
         mcts = MCTS()
         state = env.get_environment_state()
         while env.get_environment_status() == 'play':
             possible_actions = env.get_possible_actions()
-            print('state', state)
-            print('possible_actions', possible_actions)
             # TODO: Get the best action by simulating M rollout games
-
             # Returns: tuple!! containing the best action
             # Do M simulations to get the best move. 1 simulation is
             # s0 is state we begin from
@@ -44,48 +35,43 @@ if __name__ == '__main__':
             """
             # Do M simulations
             print('-------------')
-            for i in range(5):
+            for i in range(M):
                 # ALWAYS P1s turn to do something when a simulation occurs.P1 = 0, P2 = 1
-                p_num = 0
-                # TODO: Create an initialization that takes in a state
                 env = Environment('ledge')
                 # Create a board from current state
                 init = env.get_init(state)
                 env.set_game(init)
-                visited_states = []
-                actions_done = []
                 # Set initial state for simulation
-                s = env.get_environment_state()
-                # S is not in the tree, add it to the tree. ASSUMING FIRST STATE IS NOT A WIN/LOOSE
-                mcts.insert_state(state, possible_actions)
-                # Traverse the tree until a leaf node is found
-                while s in mcts.states:
-                    # TODO: Find out why states are not appending
-                    # I do a while statement, as I then need to check for the existence of a
-                    # key in a hash table O(1), instead of counting number of states in the tree
-                    possible_actions = env.get_possible_actions()
-                    combine_func, arg_func = get_minimax_functions(p_num)
-                    # TODO: Check that minimax-functions work for player 2 (after fixing visited states)
-                    # print('player ',p_num,'combine, arg:', combine_func(6,4), arg_func(9,6))
-                    # input()
-                    action = mcts.tree_policy(s, possible_actions, combine_func, arg_func)
-                    # Do the action
-                    env.generate_child_state(action)
-                    # Add state and action to lists
-                    visited_states.append(s)
-                    actions_done.append(action)
-                    # Action has been done, next players turn
-                    p_num += 1
-                    # Get next state
-                    s = env.get_environment_state()
+                s = state
+                possible_actions = env.get_possible_actions()
+                # S is not in the tree, add it to the tree
+                # TODO: Do not need to insert state if it is not first round, as recommended action will always have been
+                # in the simulation
+                if s not in mcts.states:
+                    print('...inserting {} into states dict, new node has been created'.format(s))
+                    mcts.insert_state(s, possible_actions)
+                
+                # Traverse tree
+                s, visited_states, actions_done, p_num = mcts.traverse_tree(s, env)
+
+                # Expand the tree with one node, s is now a leaf node. This should be added to visited states
+                mcts.insert_state(s, possible_actions)
+                print('...visited states', visited_states)
 
                 # When s is not in env-states, do rollout. 
-                eval = mcts.evaluate_leaf(s, env)
+                eval = mcts.evaluate_leaf(s, env, p_num)
                 # Backpropagate values
                 print('visited states:', visited_states)
                 mcts.backpropagate(visited_states, actions_done, eval)
-                input()
 
+            # Best action to do after simulation
+            best_sim_val = float('-inf')
+            for a, v in mcts.states[state].Q_edge_values.items():
+                if v > best_sim_val:
+                    best_sim_val = v
+                    best_sim_act = a
+            print(mcts.states[state].Q_edge_values)
+            print('*** best action after simulation is {}, with a value of {}'.format(best_sim_act, best_sim_val))
             # FOR REAL GAME
             # action = 'get best action from M simulations'#mcts.tree_policy(state, possible_actions, np.sum, np.max)
             # action = mcts.tree_policy(state, possible_actions, np.sum, np.max)

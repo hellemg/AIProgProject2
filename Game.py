@@ -7,7 +7,7 @@ class Nim:
         self.total_pieces = N
         self.K = K
 
-    def do_player_move(self, num_pieces: int, verbose=True):
+    def do_player_move(self, num_pieces: int, verbose=False):
         print("THIS NEEDS TO BE TUPLE (do_player_move)",num_pieces)
         exit()
         # Remove pieces from pile
@@ -39,7 +39,7 @@ class Ledge:
         # Last piece that was picked up, player has won if it is gold coin (1)
         self.picked_up = None
 
-    def do_player_move(self, boardcell: int, dist: int, verbose=True):
+    def do_player_move(self, boardcell: int, dist: int, verbose=False):
         if self.board[boardcell] == 1:
             piece = 'copper'
         else:

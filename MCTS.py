@@ -7,7 +7,7 @@ class MCTS:
         # Dict to keep different values for nodes
         self.states = {}
 
-    def tree_policy(self, state, possible_actions, combine_function, arg_function):
+    def tree_policy(self, state, possible_actions, combine_function, arg_function, best_value):
         print(state)
         print(possible_actions)
         # Using UCT to find best action in the tree
@@ -16,7 +16,6 @@ class MCTS:
         # If the state has not been seen before, initialize it
         # Find the best action from state to child state
         best_action = None
-        best_value = float("-inf")
         node = self.states[state]
         for a in possible_actions:
             u = self.c*np.sqrt(np.log(node.N)/(1+node.N_edge[a]))
@@ -25,6 +24,7 @@ class MCTS:
             best_value = arg_function(possible_best, best_value)
             if best_value == possible_best:
                 best_action = a
+        print('___ best value', best_value)
         return best_action
 
     def insert_state(self, state, possible_actions):
@@ -38,12 +38,39 @@ class MCTS:
         random_index = np.random.randint(len(possible_actions))
         return possible_actions[random_index]
 
-    def evaluate_leaf(self, s, env):
+    def traverse_tree(self, s, env):
         p_num = 0
+        visited_states = []
+        actions_done = []
+        # Traverse the tree until a leaf node is found or a final state is reached
+        while s in self.states:
+            print('...in tree search, there are {} states in the tree'.format(len(self.states.keys())))
+            combine_func, arg_func, best_value = self.get_minimax_functions(p_num)
+            possible_actions = env.get_possible_actions()
+            action = self.tree_policy(s, possible_actions, combine_func, arg_func, best_value)
+            # Do the action
+            env.generate_child_state(action)
+            # Add state and action to lists
+            visited_states.append(s)
+            actions_done.append(action)
+            print('action done: {}'.format(action))
+            # Action has been done, next players turn
+            p_num += 1
+            # Get next state and possible actions
+            s = env.get_environment_state()
+            possible_actions = env.get_possible_actions()
+            # If the new state is a win, stop
+            if env.get_environment_status() != 'play':
+                return s, visited_states, actions_done, p_num
+        return s, visited_states, actions_done, p_num
+        
+
+    def evaluate_leaf(self, s, env, p_num):
+        print('... 3. evaluate leaf node, leaf state:', s)
         while env.get_environment_status() == 'play':
             possible_actions = env.get_possible_actions()
             action = self.default_policy(s, possible_actions)
-            print('possible actions: {}\naction: {}'.format(possible_actions, action))
+            #print('possible actions: {}\naction: {}'.format(possible_actions, action))
             # Do the action
             env.generate_child_state(action)
             # NOT adding state and action to lists, only get value from rollout
@@ -63,14 +90,17 @@ class MCTS:
         Update Q(s,a)
         """
         for s, a in zip(reversed(visited_states), reversed(actions_done)):
-            print('In Backprop-------')
+            print('... 4. Backprop')
             print(s, a, result)
-            print('old N, Q',self.states[s].N, self.states[s].Q_edge_values)
             node = self.states[s]
             node.update(a, result)
             print('new N, Q',self.states[s].N, self.states[s].Q_edge_values)
-            input()
 
+    def get_minimax_functions(self, p_num):
+            if p_num%2+1 == 1:
+                return lambda x1,x2: x1+x2, lambda x1,x2: np.max((x1,x2)), float("-inf")
+            elif p_num%2+1 == 2:
+                return lambda x1,x2: x1-x2, lambda x1,x2: np.min((x1,x2)), float("inf")
 
 class Node:
     def __init__(self, possible_actions):

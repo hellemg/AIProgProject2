@@ -12,7 +12,7 @@ num_episodes = 100
 game_type = 'nim'
 
 # Number of simulations (and therefore rollouts) for each move
-M = 500
+M = 2
 
 # For Nim, number of pieces at the beginning
 N = 99
@@ -27,6 +27,8 @@ G = 4
 P = 1
 
 # For Ledge, initial board
+
+
 def create_B_init(length: int, num_copper: int):
     # Length of board, number of coppers on the board
     board = np.zeros(length, dtype=int)
@@ -37,5 +39,6 @@ def create_B_init(length: int, num_copper: int):
     # Place copper coins on the remaining generated boardcells
     board[copper_indices[1:]] = 1
     return board
+
 
 B_init = create_B_init(10, 3)
