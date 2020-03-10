@@ -30,6 +30,8 @@ class MCTS:
     def insert_state(self, state, possible_actions):
         # Add state to self.state, as a new Node
         self.states[state] = Node(possible_actions)
+        node_state= self.states[state]
+        #print('...inserted {} to states, values are:\n- N: {}\n- N_edge: {}\n- E: {}\n- Q: {}'.format(state, node_state.N, node_state.N_edge, node_state.E, node_state.Q_edge_values))
 
     def default_policy(self, state, possible_actions):
         # Using uniform distribution to get an action

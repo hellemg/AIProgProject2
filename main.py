@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 s, visited_states, actions_done, p_num = mcts.traverse_tree(s, env)
 
                 # Expand the tree with one node, s is now a leaf node. This should be added to visited states
-                mcts.insert_state(s, possible_actions)
+                mcts.insert_state(s, env.get_possible_actions())
                 print('...visited states', visited_states)
 
                 # When s is not in env-states, do rollout. 
