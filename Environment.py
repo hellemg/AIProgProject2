@@ -30,9 +30,10 @@ class Environment:
         # State of the game
         return self.game.get_game_state()
 
-    def generate_child_state(self, action):
+    def generate_child_state(self, action, p_num, verbose=True):
         # Do an action and get the resulting state
-        self.game.do_player_move(*action)
+        player = p_num%2+1
+        self.game.do_player_move(*action, player, verbose)
 
     def get_environment_status(self):
         # win, loose, play

@@ -34,14 +34,13 @@ class MCTS:
             self.node_expansion(env_sim)
 
             # Step 3: Evaluate leaf node
-            eval = self.evaluate_leaf(env_sim, p_num)
+            eval = self.evaluate_leaf(env_sim, player_number)
                 
             # Step 4: Backpropagation
             self.backpropagate(visited_states, actions_done, eval)
 
         # Return the best action
-        self.get_best_simulation_action(state)
-
+        return self.get_best_simulation_action(state)
 
     def traverse_tree(self, env, p_num):
         s = env.get_environment_state()
@@ -49,21 +48,31 @@ class MCTS:
         actions_done = []
         # Traverse the tree until a leaf node is found or a final state is reached
         while s in self.states:
-            print('...in tree search, there are {} states in the tree'.format(len(self.states.keys())))
+            #print('...in tree search, there are {} states in the tree'.format(len(self.states.keys())))
+            #for key in self.states.keys():
+            #    print(key)
+            #print('........')
             combine_func, arg_func, best_value = self.get_minimax_functions(p_num)
             possible_actions = env.get_possible_actions()
             action = self.tree_policy(s, possible_actions, combine_func, arg_func, best_value)
             # Do the action
-            env.generate_child_state(action)
+            env.generate_child_state(action, p_num, verbose=False)
             # Add state and action to lists
             visited_states.append(s)
             actions_done.append(action)
-            print('action done: {}'.format(action))
             # Action has been done, next players turn
             p_num += 1
+
+            # Old state for printing
+            old_s = s
+
             # Get next state and possible actions
             s = env.get_environment_state()
             possible_actions = env.get_possible_actions()
+
+            # Printing state transition
+            #print('-- action {}: {} -> {}'.format(action, old_s, s))
+
             # If the new state is a win, stop
             if env.get_environment_status() != 'play':
                 return env, visited_states, actions_done, p_num
@@ -76,8 +85,6 @@ class MCTS:
         self.insert_state(state, possible_actions)
         
     def tree_policy(self, state, possible_actions, combine_function, arg_function, best_value):
-        print(state)
-        print(possible_actions)
         # Using UCT to find best action in the tree
         # inout: state, possible actions from state,arg_function is either max or min, combine_function is either sum or minus
         # Returns an action
@@ -92,7 +99,6 @@ class MCTS:
             best_value = arg_function(possible_best, best_value)
             if best_value == possible_best:
                 best_action = a
-        print('___ best value', best_value)
         return best_action
 
     def insert_state(self, state, possible_actions):
@@ -111,20 +117,21 @@ class MCTS:
 
     def evaluate_leaf(self, env, p_num):
         s = env.get_environment_state()
-        print('... 3. evaluate leaf node, leaf state:', s)
+        #print('... 3. evaluate leaf node, leaf state:', s)
         while env.get_environment_status() == 'play':
             possible_actions = env.get_possible_actions()
             action = self.default_policy(s, possible_actions)
             #print('possible actions: {}\naction: {}'.format(possible_actions, action))
             # Do the action
-            env.generate_child_state(action)
+            env.generate_child_state(action, p_num, verbose=False)
             # NOT adding state and action to lists, only get value from rollout
             # Action has been done, next players turn
             p_num += 1
             # Get next state
             s = env.get_environment_state()
-        eval = env.get_environment_value(p_num%2+1)
-        print('In evaluate - player {} wins, eval={}'.format(p_num%2+1,eval))
+        # Evaluate environment, use p_num - 1 since it has been incremented
+        eval = env.get_environment_value((p_num-1)%2+1)
+        #print('In evaluate - player {} wins, eval={}'.format((p_num-1)%2+1,eval))
         return eval
 
     def backpropagate(self, visited_states, actions_done, result):
@@ -135,11 +142,11 @@ class MCTS:
         Update Q(s,a)
         """
         for s, a in zip(reversed(visited_states), reversed(actions_done)):
-            print('... 4. Backprop')
-            print(s, a, result)
+            # print('... 4. Backprop')
+            # print(s, a, result)
             node = self.states[s]
             node.update(a, result)
-            print('new N, Q',self.states[s].N, self.states[s].Q_edge_values)
+            # print('new N, Q',self.states[s].N, self.states[s].Q_edge_values)
 
     def get_minimax_functions(self, p_num):
             if p_num%2+1 == 1:
@@ -154,8 +161,9 @@ class MCTS:
             if v > best_sim_val:
                 best_sim_val = v
                 best_sim_act = a
-        print(mcts.states[state].Q_edge_values)
-        print('*** best action after simulation is {}, with a value of {}'.format(best_sim_act, best_sim_val))
+        return best_sim_act
+        # print(self.states[state].Q_edge_values)
+        # print('*** best action after simulation is {}, with a value of {}'.format(best_sim_act, best_sim_val))
 
 class Node:
     def __init__(self, possible_actions):

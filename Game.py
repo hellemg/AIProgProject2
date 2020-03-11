@@ -7,14 +7,12 @@ class Nim:
         self.total_pieces = N
         self.K = K
 
-    def do_player_move(self, num_pieces: int, verbose=False):
-        print("THIS NEEDS TO BE TUPLE (do_player_move)",num_pieces)
-        exit()
+    def do_player_move(self, num_pieces: int, player, verbose):
         # Remove pieces from pile
         self.total_pieces -= num_pieces
         if verbose:
-            print('selects {} stones. Remaining stones = {}'.format(
-                num_pieces, self.total_pieces))
+            print('Player {} selects {} stones. Remaining stones = {}'.format(
+                player, num_pieces, self.total_pieces))
 
     def game_status(self):
         # win, play (check for current player, cant loose)
@@ -26,7 +24,7 @@ class Nim:
     def get_possible_actions(self):
         # returns list of possible number of pieces to pick up
         max_pieces = np.minimum(self.K, self.total_pieces)+1
-        return np.arange(1, max_pieces)
+        return [(i,) for i in range(1, max_pieces)]
 
     def get_game_state(self):
         return str(self.total_pieces)
@@ -39,7 +37,7 @@ class Ledge:
         # Last piece that was picked up, player has won if it is gold coin (1)
         self.picked_up = None
 
-    def do_player_move(self, boardcell: int, dist: int, verbose=False):
+    def do_player_move(self, boardcell: int, dist: int, player, verbose):
         if self.board[boardcell] == 1:
             piece = 'copper'
         else:
@@ -51,15 +49,15 @@ class Ledge:
             # Remoce piece from old cell
             self.board[boardcell] = 0.
             if verbose:
-                print('picks up {}: {}'.format(piece, self.board))
+                print('Player {} picks up {}: {}'.format(player, piece, self.board))
         else:
             # Move piece to new cell
             self.board[boardcell-dist] = self.board[boardcell]
             # Remoce piece from old cell
             self.board[boardcell] = 0.
             if verbose:
-                print('moves {} from cell {} to cell {}: {}'.format(
-                    piece, boardcell, boardcell-dist, self.board))
+                print('Player {} moves {} from cell {} to cell {}: {}'.format(
+                    player, piece, boardcell, boardcell-dist, self.board))
 
     def game_status(self):
         # win, play (check for current player, cant loose)

@@ -3,31 +3,28 @@ import numpy as np
 
 # NOTE: Player 1 is max-player
 
-# Game size
-game_size = 10
+verbose = True
 
-# Number of games to play
-num_episodes = 100
+# Number of games in a batch
+G = 1
 
 game_type = 'nim'
 
 # Number of simulations (and therefore rollouts) for each move
-M = 5
+M = 500
 
 # For Nim, number of pieces at the beginning
-N = 99
+N = 10
 
 # For Nim, number of pieces allowed to remove
-K = 7
+K = 3
 
-# Number of games in a batch
-G = 4
-
-# Player to start, 1,2,3 (0,1,2)
-P = 0
+# Player to start, 1,2,3
+P = 1
 
 # For Ledge, initial board
-
+lenght = 10
+num_coppers = 3
 
 def create_B_init(length: int, num_copper: int):
     # Length of board, number of coppers on the board
@@ -41,4 +38,4 @@ def create_B_init(length: int, num_copper: int):
     return board
 
 
-B_init = create_B_init(10, 3)
+B_init = create_B_init(lenght, num_coppers)
