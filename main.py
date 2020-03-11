@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
         """
         TODO: 
-        - STATE FOR LEDGE NEEDS TO BE STRING
-        - Check that two new methods in ledge works
         - Test for ledge
         - Go through oppgavetekst and ensure everything is ok
         - Comment code
         - Decide what to clean
-        - Clean
+        - Clean (suggestions below)
+        -- Decide on node or env-method for leaf_evaluation
+        -- Maybe Environment should change to be able to create games from a state?
         """

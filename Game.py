@@ -41,7 +41,7 @@ class Nim:
 class Ledge:
     def __init__(self, B_init):
         # B_init is a numpy array, 2 is gold, 1 is copper, 0 is empty
-        self.board = B_init
+        self.board = B_init.copy()
         # Last piece that was picked up, player has won if it is gold coin (1)
         self.picked_up = None
 

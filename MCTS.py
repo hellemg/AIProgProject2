@@ -36,7 +36,7 @@ class Node:
             self.E_t[a] = 0
 
     def update(self, eval_value):
-        # print('...updating values for {}'.format(self.name))
+        #print('...updating values for {}'.format(self.name))
         # Update values for a node
         self.N_s += 1
         self.E_t[self.action_done] += eval_value
@@ -69,12 +69,10 @@ class MCTS:
             #print('--- Simulation {} ---'.format(i+1))
 
             # 1. Follow tree policy to leaf node
-            # TODO: use tree policy to go through the tree until a leaf-node is reached
             # Note: leaf-node may be a final state, but not necessary
             leaf_node = self.traverse_tree(node)
 
             # 2. When leaf-node is found, expand the leaf to get all children and return one of them (or `node` if it is a final state)
-            # TODO: Update env_sim to it represents leaf node
             leaf_node = self.expand_leaf_node(leaf_node)
 
             # 3. Leaf evaluation
@@ -198,7 +196,8 @@ class MCTS:
         if node.is_final_state:
             final_player = (self.p_num-1) % 2+1
             eval_value = env.get_environment_value(final_player)
-            #print('Player {} wins, eval_value={}'.format(final_player, eval_value))
+            #print('leaf was final - Player {} wins, eval_value={}'.format(final_player, eval_value))
+            #input('\n\n\n\n\n IN FINAL PRESS KEY')
             return eval_value
         else: 
             #print(env.get_environment_status())
@@ -210,7 +209,7 @@ class MCTS:
                 self.p_num += 1
             final_player = (self.p_num-1) % 2+1
             eval_value = env.get_environment_value(final_player)
-            #print('Player {} wins, eval_value={}'.format(final_player, eval_value))
+            #print('leaf not final - Player {} wins, eval_value={}'.format(final_player, eval_value))
             return eval_value
 
     def backpropagate(self, node, eval_value):
