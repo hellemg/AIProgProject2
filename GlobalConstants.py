@@ -12,7 +12,7 @@ num_episodes = 100
 game_type = 'nim'
 
 # Number of simulations (and therefore rollouts) for each move
-M = 2
+M = 5
 
 # For Nim, number of pieces at the beginning
 N = 99
@@ -23,8 +23,8 @@ K = 7
 # Number of games in a batch
 G = 4
 
-# Player to start, 1,2,3
-P = 1
+# Player to start, 1,2,3 (0,1,2)
+P = 0
 
 # For Ledge, initial board
 

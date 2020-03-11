@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
         env = Environment('ledge')
         env.set_game(B_init)
-        mcts = MCTS()
+        mcts = MCTS('ledge')
         state = env.get_environment_state()
         while env.get_environment_status() == 'play':
             possible_actions = env.get_possible_actions()
@@ -35,43 +35,44 @@ if __name__ == '__main__':
             """
             # Do M simulations
             print('-------------')
-            for i in range(M):
-                # ALWAYS P1s turn to do something when a simulation occurs.P1 = 0, P2 = 1
-                env = Environment('ledge')
-                # Create a board from current state
-                init = env.get_init(state)
-                env.set_game(init)
-                # Set initial state for simulation
-                s = state
-                possible_actions = env.get_possible_actions()
-                # S is not in the tree, add it to the tree
-                # TODO: Do not need to insert state if it is not first round, as recommended action will always have been
-                # in the simulation
-                if s not in mcts.states:
-                    print('...inserting {} into states dict, new node has been created'.format(s))
-                    mcts.insert_state(s, possible_actions)
+            best_action = mcts.get_best_action_by_simulating(player_number=P, M=M, state=state)
+            # for i in range(M):
+            #     # ALWAYS P1s turn to do something when a simulation occurs.P1 = 0, P2 = 1
+            #     env = Environment('ledge')
+            #     # Create a board from current state
+            #     init = env.get_init(state)
+            #     env.set_game(init)
+            #     # Set initial state for simulation
+            #     s = state
+            #     possible_actions = env.get_possible_actions()
+            #     # S is not in the tree, add it to the tree
+            #     # TODO: Do not need to insert state if it is not first round, as recommended action will always have been
+            #     # in the simulation
+            #     if s not in mcts.states:
+            #         print('...inserting {} into states dict, new node has been created'.format(s))
+            #         mcts.insert_state(s, possible_actions)
                 
-                # Traverse tree
-                s, visited_states, actions_done, p_num = mcts.traverse_tree(s, env)
+            #     # Traverse tree
+            #     s, visited_states, actions_done, p_num = mcts.traverse_tree(env,0)
 
-                # Expand the tree with one node, s is now a leaf node. This should be added to visited states
-                mcts.insert_state(s, env.get_possible_actions())
-                print('...visited states', visited_states)
+            #     # Expand the tree with one node, s is now a leaf node. This should be added to visited states
+            #     mcts.insert_state(s, env.get_possible_actions())
+            #     print('...visited states', visited_states)
 
-                # When s is not in env-states, do rollout. 
-                eval = mcts.evaluate_leaf(s, env, p_num)
-                # Backpropagate values
-                print('visited states:', visited_states)
-                mcts.backpropagate(visited_states, actions_done, eval)
+            #     # When s is not in env-states, do rollout. 
+            #     eval = mcts.evaluate_leaf(env, p_num)
+            #     # Backpropagate values
+            #     print('visited states:', visited_states)
+            #     mcts.backpropagate(visited_states, actions_done, eval)
 
-            # Best action to do after simulation
-            best_sim_val = float('-inf')
-            for a, v in mcts.states[state].Q_edge_values.items():
-                if v > best_sim_val:
-                    best_sim_val = v
-                    best_sim_act = a
-            print(mcts.states[state].Q_edge_values)
-            print('*** best action after simulation is {}, with a value of {}'.format(best_sim_act, best_sim_val))
+            # # Best action to do after simulation
+            # best_sim_val = float('-inf')
+            # for a, v in mcts.states[state].Q_edge_values.items():
+            #     if v > best_sim_val:
+            #         best_sim_val = v
+            #         best_sim_act = a
+            # print(mcts.states[state].Q_edge_values)
+            # print('*** best action after simulation is {}, with a value of {}'.format(best_sim_act, best_sim_val))
             # FOR REAL GAME
             # action = 'get best action from M simulations'#mcts.tree_policy(state, possible_actions, np.sum, np.max)
             # action = mcts.tree_policy(state, possible_actions, np.sum, np.max)
