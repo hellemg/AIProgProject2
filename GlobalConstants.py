@@ -6,7 +6,7 @@ import numpy as np
 verbose = False
 
 # Number of games in a batch
-G = 20
+G = 10
 
 game_type = 'nim'
 
@@ -14,7 +14,7 @@ game_type = 'nim'
 M = 500
 
 # For Nim, number of pieces at the beginning
-N = 15
+N = 10
 
 # For Nim, number of pieces allowed to remove
 K = 3
@@ -23,8 +23,8 @@ K = 3
 P = 1
 
 # For Ledge, initial board
-lenght = 10
-num_coppers = 3
+lenght = 3
+num_coppers = 2
 
 def create_B_init(length: int, num_copper: int):
     # Length of board, number of coppers on the board
@@ -38,4 +38,4 @@ def create_B_init(length: int, num_copper: int):
     return board
 
 
-B_init = create_B_init(lenght, num_coppers)
+B_init = np.array([1,1,0,2])#create_B_init(lenght, num_coppers)

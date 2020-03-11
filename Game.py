@@ -68,8 +68,33 @@ class Ledge:
                 print('Player {} moves {} from cell {} to cell {}: {}'.format(
                     player, piece, boardcell, boardcell-dist, self.board))
 
+    def get_state_from_action(self, boardcell: int, dist: int):
+        # Simulates a move, but does not change the environment
+        board = self.board.copy()
+        #print('board and board copy:', self.board, board)
+        # Pick up from ledge
+        if boardcell == 0:
+            # Save the picked up piece for game status check
+            #self.picked_up = self.board[boardcell]
+            # Remoce piece from old cell
+            board[boardcell] = 0.
+            #print('board and board copy:', self.board, board)
+            return ''.join(map(str, board))
+        else:
+            # Move piece to new cell
+            board[boardcell-dist] = board[boardcell]
+            # Remoce piece from old cell
+            board[boardcell] = 0.
+            #print('board and board copy:', self.board, board)
+            return ''.join(map(str, board))
+
+    def does_action_give_win(self, boardcell: int, dist: int):
+        # Tells if an action taken on the current board results in a win
+        #print('board and boardcell', self.board, boardcell)
+        return boardcell==0 and self.board[boardcell] == 2.
+
     def game_status(self):
-        # win, play (check for current player, cant loose)
+        # win, play (check for scurrent player, cant loose)
         if self.picked_up == 2:
             return 'win'
         else:

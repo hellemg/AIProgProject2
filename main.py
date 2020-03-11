@@ -67,7 +67,8 @@ if __name__ == '__main__':
 
         """
         TODO: 
-        - Add methods to ledge that does not exist
+        - STATE FOR LEDGE NEEDS TO BE STRING
+        - Check that two new methods in ledge works
         - Test for ledge
         - Go through oppgavetekst and ensure everything is ok
         - Comment code

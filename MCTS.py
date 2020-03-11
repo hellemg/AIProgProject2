@@ -126,8 +126,8 @@ class MCTS:
 
     def traverse_tree(self, root_node):
         # Returns leafnode
-        # print('1. Traverse tree with initial state {}, player p_num: {}'.format(
-        #     root_node.name, self.p_num))
+        #print('1. Traverse tree with initial state {}, player p_num: {}'.format(
+        #    root_node.name, self.p_num))
         node = root_node
         # Traverse until node is a leaf-node or a final state
         while not (node.is_leaf or node.is_final_state):
@@ -163,6 +163,7 @@ class MCTS:
                 # Get the child state action `e` would result in
                 child_state = env.generate_child_state(action=e)
                 is_final = env.check_if_child_is_win(action=e)
+                #print('.......',e, is_final)
                 # Add child node, with parent `node`
                 child_node = Node(child_state, parent=node, is_final=is_final)
                 child_nodes.append(child_node)
@@ -170,6 +171,7 @@ class MCTS:
             node.set_children(edges, child_nodes)
             # print('randomly set - Player {} selects {} stones'.format(
             #     self.p_num % 2+1, edges[-1]))
+            #print('randomly set - Player {} does {}'.format(self.p_num % 2+1, edges[-1]))
             node.set_action_done(edges[-1])
             # Moving on to a new layer, so next players turn
             self.p_num += 1
@@ -192,19 +194,28 @@ class MCTS:
         env = Environment(self.game_type)
         init = env.get_init(node.name)
         env.set_game(init)
-        while env.get_environment_status() == 'play':
-            possible_actions = env.get_possible_actions()
-            action = self.default_policy(possible_actions)
-            env.move_to_child_state(action, self.p_num, verbose=False)
-            self.p_num += 1
-        final_player = (self.p_num-1) % 2+1
-        eval_value = env.get_environment_value(final_player)
-        #print('Player {} wins, eval_value={}'.format(final_player, eval_value))
-        return eval_value
+        #print(node.is_final_state)
+        if node.is_final_state:
+            final_player = (self.p_num-1) % 2+1
+            eval_value = env.get_environment_value(final_player)
+            #print('Player {} wins, eval_value={}'.format(final_player, eval_value))
+            return eval_value
+        else: 
+            #print(env.get_environment_status())
+            while env.get_environment_status() == 'play':
+                possible_actions = env.get_possible_actions()
+                #print(possible_actions)
+                action = self.default_policy(possible_actions)
+                env.move_to_child_state(action, self.p_num, verbose=False)
+                self.p_num += 1
+            final_player = (self.p_num-1) % 2+1
+            eval_value = env.get_environment_value(final_player)
+            #print('Player {} wins, eval_value={}'.format(final_player, eval_value))
+            return eval_value
 
     def backpropagate(self, node, eval_value):
-        # print('4. Backpropagate from state {}, result is {}'.format(
-        #     node.name, eval_value))
+        #print('4. Backpropagate from state {}, result is {}'.format(
+        #    node.name, eval_value))
         # BP until node has no parent
         while not node.is_root:
             # TODO: Update all relevant values
