@@ -3,10 +3,10 @@ import numpy as np
 
 # NOTE: Player 1 is max-player
 
-verbose = True
+verbose = False
 
 # Number of games in a batch
-G = 1
+G = 20
 
 game_type = 'nim'
 
@@ -14,7 +14,7 @@ game_type = 'nim'
 M = 500
 
 # For Nim, number of pieces at the beginning
-N = 10
+N = 15
 
 # For Nim, number of pieces allowed to remove
 K = 3

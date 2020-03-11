@@ -14,6 +14,14 @@ class Nim:
             print('Player {} selects {} stones. Remaining stones = {}'.format(
                 player, num_pieces, self.total_pieces))
 
+    def get_state_from_action(self, num_pieces):
+        # Simulates a move, but does not change the environment
+        return str(self.total_pieces-num_pieces)
+
+    def does_action_give_win(self, num_pieces):
+        # Tells if an action taken on the current board results in a win
+        return self.total_pieces == num_pieces
+
     def game_status(self):
         # win, play (check for current player, cant loose)
         if self.total_pieces == 0:
@@ -49,7 +57,8 @@ class Ledge:
             # Remoce piece from old cell
             self.board[boardcell] = 0.
             if verbose:
-                print('Player {} picks up {}: {}'.format(player, piece, self.board))
+                print('Player {} picks up {}: {}'.format(
+                    player, piece, self.board))
         else:
             # Move piece to new cell
             self.board[boardcell-dist] = self.board[boardcell]

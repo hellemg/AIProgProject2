@@ -2,10 +2,9 @@ from Game import Nim, Ledge
 from GlobalConstants import *
 
 class Environment:
-    def __init__(self, game_type: str, verbose = True):
+    def __init__(self, game_type: str):
         # Game type: nim or ledge
         self.game_type = game_type
-        self.verbose = verbose
 
     def get_init(self, state):
         # Returns init for 
@@ -30,7 +29,15 @@ class Environment:
         # State of the game
         return self.game.get_game_state()
 
-    def generate_child_state(self, action, p_num, verbose=True):
+    def generate_child_state(self, action):
+        # Gets a child state without changing the environment
+        return self.game.get_state_from_action(*action)
+
+    def check_if_child_is_win(self, action):
+        # Checks if an action leads to a win
+        return self.game.does_action_give_win(*action)
+
+    def move_to_child_state(self, action, p_num, verbose=True):
         # Do an action and get the resulting state
         player = p_num%2+1
         self.game.do_player_move(*action, player, verbose)
