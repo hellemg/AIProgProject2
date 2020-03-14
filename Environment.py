@@ -6,6 +6,9 @@ class Environment:
         # Game type: nim or ledge
         self.game_type = game_type
 
+        # TODO: method to generate new state from state and action
+        # - state should be ndarray, so state = board and a new state can be generated from an action
+
     def get_init(self, state):
         # Returns init for 
         if self.game_type == 'nim':

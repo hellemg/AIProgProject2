@@ -3,7 +3,7 @@ import numpy as np
 
 # NOTE: Player 1 is max-player
 
-verbose = True
+verbose = False
 
 # Number of games in a batch
 G = 10
@@ -11,20 +11,21 @@ G = 10
 game_type = 'ledge'
 
 # Number of simulations (and therefore rollouts) for each move
-M = 1000
+M = 500
 
 # For Nim, number of pieces at the beginning
-N = 11
+N = 50
 
 # For Nim, number of pieces allowed to remove
-K = 3
+K = 10
 
 # Player to start, 1,2,3
-P = 3
+P = 1
 
 # For Ledge, initial board
-lenght = 5
+lenght = 8
 num_coppers = 4
+
 
 def create_B_init(length: int, num_copper: int):
     # Length of board, number of coppers on the board
@@ -40,4 +41,4 @@ def create_B_init(length: int, num_copper: int):
 
 #B_init = np.array([1,1,0,2])
 #B_init = create_B_init(lenght, num_coppers)
-B_init = np.array([1,1,2,1,1])
+B_init = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0, 1, 1, 1])
