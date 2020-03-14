@@ -3,21 +3,21 @@ import numpy as np
 
 # NOTE: Player 1 is max-player
 
-verbose = False
+verbose = True
 
 # Number of games in a batch
 G = 10
 
-game_type = 'ledge'
+game_type = 'nim'
 
 # Number of simulations (and therefore rollouts) for each move
 M = 500
 
 # For Nim, number of pieces at the beginning
-N = 50
+N = 75
 
 # For Nim, number of pieces allowed to remove
-K = 10
+K = 74
 
 # Player to start, 1,2,3
 P = 1

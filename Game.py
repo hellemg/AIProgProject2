@@ -14,6 +14,27 @@ class Nim:
             print('Player {} selects {} stones. Remaining stones = {}'.format(
                 player, num_pieces, self.total_pieces))
 
+    def get_state_from_state_action(self, total_pieces, num_pieces):
+        """
+        :param num_pieces: int, pieces getting picked up
+
+        :returns: int, pieces left on the board
+        """
+        return total_pieces-num_pieces
+
+    def check_game_done(self, total_pieces):
+        """
+        :param total_pieces: int, pieces on the board
+
+        returns: boolean, if all pieces have been picked up
+        """
+        return total_pieces == 0
+
+    def get_possible_actions_from_state(self, total_pieces):
+        # returns list of possible number of pieces to pick up
+        max_pieces = np.minimum(self.K, total_pieces)+1
+        return [(i,) for i in range(1, max_pieces)]
+
     def get_state_from_action(self, num_pieces):
         # Simulates a move, but does not change the environment
         return str(self.total_pieces-num_pieces)
@@ -35,7 +56,8 @@ class Nim:
         return [(i,) for i in range(1, max_pieces)]
 
     def get_game_state(self):
-        return str(self.total_pieces)
+        return self.total_pieces
+        #return str(self.total_pieces)
 
 
 class Ledge:

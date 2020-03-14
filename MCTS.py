@@ -1,5 +1,5 @@
 import numpy as np
-from Environment import Environment
+from Environment import Environment, Environment2
 
 
 class Node:
@@ -59,6 +59,7 @@ class MCTS:
         self.c = 1
         # Dict to keep different values for nodes
         self.states = {}
+        self.sim_env = Environment2(self.game_type)
         # TODO: Add self.evaluate_leaf (=rollout) and self.evaluate_ciritc (NN), so it is generalized and both can be used
 
     def simulate(self, player_number: int, M: int, init_state):
@@ -148,19 +149,20 @@ class MCTS:
 
     def expand_leaf_node(self, node):
         # Expand if the node is not a final state
-        env = Environment(self.game_type)
-        init = env.get_init(node.name)
-        env.set_game(init)
-        #print('2. Expand leaf node', node.name)
+        # print('2. Expand leaf node', node.name)
+        # print('2. Expand leaf node', type(node.name))
         if not node.is_final_state:
             # Get all action from node, and the resulting states
-            edges = env.get_possible_actions()
+            #edges = env.get_possible_actions()
+            edges = self.sim_env.get_possible_actions_from_state(node.name)
             child_nodes = []
             #print('... possible actions from {} are {}'.format(node.name, edges))
             for e in edges:
                 # Get the child state action `e` would result in
-                child_state = env.generate_child_state(action=e)
-                is_final = env.check_if_child_is_win(action=e)
+                #child_state = env.generate_child_state(action=e)
+                child_state = self.sim_env.generate_child_state_from_action(node.name, e)
+                is_final = self.sim_env.check_game_done(child_state)
+                #print('Node {} using action {} gives child state {} with final: {}'.format(node.name, e, child_state, is_final))
                 #print('.......',e, is_final)
                 # Add child node, with parent `node`
                 child_node = Node(child_state, parent=node, is_final=is_final)
@@ -196,20 +198,25 @@ class MCTS:
         # print(node.is_final_state)
         if node.is_final_state:
             final_player = (self.p_num-1) % 2+1
-            eval_value = env.get_environment_value(final_player)
+            eval_value = self.sim_env.get_environment_value(final_player)
             #print('leaf was final - Player {} wins, eval_value={}'.format(final_player, eval_value))
             #input('\n\n\n\n\n IN FINAL PRESS KEY')
             return eval_value
         else:
+            state = node.name
             # print(env.get_environment_status())
-            while env.get_environment_status() == 'play':
-                possible_actions = env.get_possible_actions()
+            #while env.get_environment_status() == 'play':
+            # TODO: Method in ledge so that the if sentence is not needed
+            while not self.sim_env.check_game_done(state):
+                #possible_actions = env.get_possible_actions()
+                possible_actions = self.sim_env.get_possible_actions_from_state(state)
                 # print(possible_actions)
                 action = self.default_policy(possible_actions)
-                env.move_to_child_state(action, self.p_num, verbose=False)
+                #env.move_to_child_state(action, self.p_num, verbose=False)
+                state = self.sim_env.generate_child_state_from_action(state, action)
                 self.p_num += 1
             final_player = (self.p_num-1) % 2+1
-            eval_value = env.get_environment_value(final_player)
+            eval_value = self.sim_env.get_environment_value(final_player)
             #print('leaf not final - Player {} wins, eval_value={}'.format(final_player, eval_value))
             return eval_value
 
