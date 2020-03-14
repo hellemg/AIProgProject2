@@ -14,10 +14,10 @@ game_type = 'nim'
 M = 500
 
 # For Nim, number of pieces at the beginning
-N = 75
+N = 10
 
 # For Nim, number of pieces allowed to remove
-K = 74
+K = 3
 
 # Player to start, 1,2,3
 P = 1
@@ -40,5 +40,5 @@ def create_B_init(length: int, num_copper: int):
 
 
 #B_init = np.array([1,1,0,2])
-#B_init = create_B_init(lenght, num_coppers)
-B_init = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0, 1, 1, 1])
+B_init = create_B_init(lenght, num_coppers)
+#B_init = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0, 1, 1, 1])

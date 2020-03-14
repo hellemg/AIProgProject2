@@ -2,24 +2,19 @@ import numpy as np
 
 
 class Nim:
-    def __init__(self, N, K):
-        # N, K as defined in GC
-        self.total_pieces = N
+    def __init__(self, K):
+        # K as defined in GC
         self.K = K
 
-    def do_player_move(self, num_pieces: int, player, verbose):
-        # Remove pieces from pile
-        self.total_pieces -= num_pieces
-        if verbose:
-            print('Player {} selects {} stones. Remaining stones = {}'.format(
-                player, num_pieces, self.total_pieces))
-
-    def get_state_from_state_action(self, total_pieces, num_pieces):
+    def get_state_from_state_action(self, total_pieces, num_pieces, player, verbose):
         """
         :param num_pieces: int, pieces getting picked up
 
         :returns: int, pieces left on the board
         """
+        if verbose:
+            print('Player {} selects {} stones. Remaining stones = {}'.format(
+                player, num_pieces, total_pieces-num_pieces))
         return total_pieces-num_pieces
 
     def check_game_done(self, total_pieces):
@@ -31,103 +26,65 @@ class Nim:
         return total_pieces == 0
 
     def get_possible_actions_from_state(self, total_pieces):
+        """
+        :param total_pieces: int, pieces on the board
+
+        :returns: list tuples with possible actions to take
+        """
         # returns list of possible number of pieces to pick up
         max_pieces = np.minimum(self.K, total_pieces)+1
         return [(i,) for i in range(1, max_pieces)]
 
-    def get_state_from_action(self, num_pieces):
-        # Simulates a move, but does not change the environment
-        return str(self.total_pieces-num_pieces)
-
-    def does_action_give_win(self, num_pieces):
-        # Tells if an action taken on the current board results in a win
-        return self.total_pieces == num_pieces
-
-    def game_status(self):
-        # win, play (check for current player, cant loose)
-        if self.total_pieces == 0:
-            return 'win'
-        else:
-            return 'play'
-
-    def get_possible_actions(self):
-        # returns list of possible number of pieces to pick up
-        max_pieces = np.minimum(self.K, self.total_pieces)+1
-        return [(i,) for i in range(1, max_pieces)]
-
-    def get_game_state(self):
-        return self.total_pieces
-        #return str(self.total_pieces)
-
 
 class Ledge:
-    def __init__(self, B_init):
-        # B_init is a numpy array, 2 is gold, 1 is copper, 0 is empty
-        self.board = B_init.copy()
+    def __init__(self):
         # Last piece that was picked up, player has won if it is gold coin (1)
         self.picked_up = None
 
-    def do_player_move(self, boardcell: int, dist: int, player, verbose):
-        if self.board[boardcell] == 1:
+    def get_state_from_state_action(self, board, boardcell: int, dist: int, player, verbose):
+        """
+        :param board: ndarray, ledge-board
+        :param boardcell: cell that something should be moved from
+        :param dist: distance to the left from boardcell to move item to. Is 0 if boardcell == 0
+
+        :returns: ndarray, new state of the board
+        """
+        temp_board = board.copy()
+        if temp_board[boardcell] == 1:
             piece = 'copper'
         else:
             piece = 'gold'
-        # Pick up from ledge
-        if boardcell == 0:
-            # Save the picked up piece for game status check
-            self.picked_up = self.board[boardcell]
-            # Remoce piece from old cell
-            self.board[boardcell] = 0.
-            if verbose:
+        # Move piece to new cell. If boardcell == 0, then dist == 0 and nothing happens
+        temp_board[boardcell-dist] = temp_board[boardcell]
+        # Remoce piece from old cell
+        temp_board[boardcell] = 0.
+        # print('board and board copy:', self.board, board)
+        if verbose:
+            if boardcell == 0:
                 print('Player {} picks up {}: {}'.format(
-                    player, piece, self.board))
-        else:
-            # Move piece to new cell
-            self.board[boardcell-dist] = self.board[boardcell]
-            # Remoce piece from old cell
-            self.board[boardcell] = 0.
-            if verbose:
+                    player, piece, temp_board))
+            else:
                 print('Player {} moves {} from cell {} to cell {}: {}'.format(
-                    player, piece, boardcell, boardcell-dist, self.board))
+                    player, piece, boardcell, boardcell-dist, temp_board))
+        return temp_board
 
-    def get_state_from_action(self, boardcell: int, dist: int):
-        # Simulates a move, but does not change the environment
-        board = self.board.copy()
-        #print('board and board copy:', self.board, board)
-        # Pick up from ledge
-        if boardcell == 0:
-            # Save the picked up piece for game status check
-            #self.picked_up = self.board[boardcell]
-            # Remoce piece from old cell
-            board[boardcell] = 0.
-            #print('board and board copy:', self.board, board)
-            return ''.join(map(str, board))
-        else:
-            # Move piece to new cell
-            board[boardcell-dist] = board[boardcell]
-            # Remoce piece from old cell
-            board[boardcell] = 0.
-            #print('board and board copy:', self.board, board)
-            return ''.join(map(str, board))
+    def check_game_done(self, board):
+        """
+        :param board: ndarray, ledge-board
 
-    def does_action_give_win(self, boardcell: int, dist: int):
-        # Tells if an action taken on the current board results in a win
-        #print('board and boardcell', self.board, boardcell)
-        return boardcell==0 and self.board[boardcell] == 2.
+        returns: boolean, True if there is no gold piece (2)
+        """
+        return not 2 in board
 
-    def game_status(self):
-        # win, play (check for scurrent player, cant loose)
-        if self.picked_up == 2:
-            return 'win'
-        else:
-            return 'play'
+    def get_possible_actions_from_state(self, board):
+        """
+        :param board: ndarray, ledge-board
 
-    def get_possible_actions(self):
-        # Need to return pairs of boardcell (index) and distance (int, how much I can move to the left)
-        # Each boardcell can have several dists, I'll return a tuple for each pair
+        :returns: list tuples with possible actions to take
+        """
         actions = []
         dists = 0
-        for i, cell in enumerate(self.board):
+        for i, cell in enumerate(board):
             # Go through the board from the left to the right
             # If the cell is 0, save it as it can be used for the dist
             # If the cell is not 0, use all saved dists together with the cell
@@ -137,9 +94,6 @@ class Ledge:
                 actions += [(i, d+1) for d in range(dists)]
                 dists = 0
         # Add first cell to actions, can be picked up
-        if self.board[0] != 0:
+        if board[0] != 0:
             actions.append((0, 0))
         return actions
-
-    def get_game_state(self):
-        return ''.join(map(str, self.board))
